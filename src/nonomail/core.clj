@@ -1,26 +1,28 @@
 (ns nonomail.core
+  "Core mail functions used by the send and read libraries."
   (:import (javax.mail Authenticator Session Message Header)))
 
-(defmulti set-session-props (fn [config] (:protocol config)))
+(declare *session*) ; something for binding to point at, in with-mail-session
 
-(defmethod set-session-props :smtp [config]
+(defn- set-session-props
   "Set session properties for SMTP mail delivery."
+  [config]
   (let [props (java.util.Properties.)
 	port (or (:port config) 25)]
     (doto props
-      (.put "mail.smtp.host" (:host config))
-      (.put "mail.smtp.port" port)
-      (.put "mail.smtp.socketFactor.port" port))
+      (.put "mail.host" (:host config))
+      (.put "mail.port" port)
+      (.put "mail.socketFactor.port" port))
     (when (:user config)
       (.put props (:user config)))
     (when (:auth config)
-      (.put props "mail.smtp.auth" "true"))
+      (.put props "mail.auth" "true"))
     (when (:ssl config)
       (doto props
-	(.put "mail.smtp.starttls.enable" "true")
-	(.put "mail.smtp.socketFactory.class"
+	(.put "mail.starttls.enable" "true")
+	(.put "mail.socketFactory.class"
 	      "javax.net.ssl.SSLSocketFactory")
-	(.put "mail.smtp.socketFactory.fallback" "false")))
+	(.put "mail.socketFactory.fallback" "false")))
   
   props))   
 
@@ -40,17 +42,14 @@ to use in creating a valid session."
 used in other JavaMail functions. The config map should contain
 values for the keys listed below.
 
-  :host       The mail host to connect to [required].
-  :port       The port, if different from the default for the given protocol.
-  :protocol   One of :smtp (for sending), :imap or :pop (for reading). Defaults to smtp.
+  :host       The mail host to connect to. Default localhost.
+  :port       The port. Default 25.
   :user       Username [optional].
   :pass       Password [optional].
-  :ssl        Boolean: use SSL for connections?
-  :auth       Boolean: attempt authorization with :user and :pass?"
+  :ssl        Boolean: use SSL for connections? Default: false
+  :auth       Boolean: attempt authorization with :user and :pass? Default: false"
   [config]
-  (when-not (:host config)
-    (throw (Exception. "get-session :host parameter not given")))
-  (let [defaults {:protocol :smtp, :ssl true, :auth false}
+  (let [defaults {:host "localhost", :port 25, :ssl false, :auth false}
 	config (merge defaults config)
 	props (set-session-props config)
 	authenticator (get-authenticator config)
@@ -61,3 +60,13 @@ values for the keys listed below.
 		     :session-object session}]
     (atom session-map)))
 
+(defmacro with-mail-session
+  "Sets up a session binding, given either a config map or an existing
+session (as created by get-session). When you invoke with-mail-session,
+the variable *session* will be bound to the current JavaMail session."
+  [config-or-session & body]
+  `(let [sess# (if (map? ~config-or-session)
+		(get-session ~config-or-session)
+		~config-or-session)]
+	(binding [*session* sess#]
+	   ~@body)))

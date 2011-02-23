@@ -5,15 +5,12 @@
 (def test-config-host-only {:host "127.0.0.1"})
 
 (facts "about core/get-session"
-  "host is required"
-  (get-session {}) => (throws Exception "get-session :host parameter not given")
-
   "defaults and built-ins are correct"
-  (let [session (get-session {:host "localhost"})
+  (let [session (get-session {})
 	config (:config @session)
 	props (:session-props @session)
 	authenticator (:session-authenticator @session)]
-    (:protocol config) => :smtp
-    (.get props "mail.smtp.host") => "localhost"
+    (.get props "mail.host") => "localhost"
+    (.get props "mail.port") => 25
     authenticator => #(instance? javax.mail.Authenticator %))
   )

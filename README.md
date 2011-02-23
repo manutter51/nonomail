@@ -2,6 +2,8 @@
 
 A Clojure interface to the javax.mail API
 
+This project is not yet ready for prime time. I wouldn't use it yet if I were you.
+
 ## Usage
 
 Leiningen project.clj settings:
