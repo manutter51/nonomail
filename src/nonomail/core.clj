@@ -1,6 +1,7 @@
 (ns nonomail.core
   "Core mail functions used by the send and read libraries."
-  (:import (javax.mail Authenticator Session Message Header)))
+  (:import (javax.mail Authenticator Session Message Header))
+  (:require [nonomail.util :as util]))
 
 (declare *session*) ; something for binding to point at, in with-mail-session
 
@@ -11,7 +12,8 @@
         port (:port config)
         port (if (string? port) port (str port))
         auth (:auth config)
-        auth (if (string? auth) auth (str auth))]
+        auth (if (string? auth) auth (str auth))
+	extra-keys (vec (filter string? (keys config)))]
     (doto props
       (.put "mail.host" (:host config))
       (.put "mail.port" port)
@@ -26,6 +28,10 @@
         (.put "mail.socketFactory.class"
               "javax.net.ssl.SSLSocketFactory")
         (.put "mail.socketFactory.fallback" "false")))
+    ; Any user-supplied properties?
+    (when extra-keys
+      (util/set-props props (select-keys config extra-keys)))
+
     
     props))
 

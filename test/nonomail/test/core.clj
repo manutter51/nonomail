@@ -31,14 +31,27 @@
         ssl-enable (.get props "mail.starttls.enable")
         factory (.get props "mail.socketFactory.class")
         fallback (.get props "mail.socketFactory.fallback")]
-      host => (exactly "myhost")
-      port => (exactly "123")
+      host => (just "myhost")
+      port => (just "123")
       port => string?
-      user => (exactly "joeuser")
+      user => (just "joeuser")
       pass => nil?
-      auth => (exactly "true")
+      auth => (just "true")
       auth => string?
-      ssl-enable => (exactly "true")
-      factory => (exactly "javax.net.ssl.SSLSocketFactory")
-      fallback => (exactly "false"))
+      ssl-enable => (just "true")
+      factory => (just "javax.net.ssl.SSLSocketFactory")
+      fallback => (just "false")))
+
+(facts "about extra parameters"
+  "extra parameters passed in correctly"
+  (let [config {:host "anyhost"
+		"mail.smtp.host" "smtphost"
+		"mail.imap.host" "imaphost"}
+	session (get-session config)
+	props (:session-props @session)
+	]
+    props => truthy
+    (.get props "mail.host") => (just "anyhost")
+    (.get props "mail.smtp.host") => (just "smtphost")
+    (.get props "mail.imap.host") => (just "imaphost"))
   )

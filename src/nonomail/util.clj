@@ -8,7 +8,7 @@ Map keys can be strings or keywords."
     (let [ky (if (keyword? k)
 	       (name k)
 	       k)
-	  v (k m)]
+	  v (m k)]
       (.put p ky v))))
 
 (defn prop-names
