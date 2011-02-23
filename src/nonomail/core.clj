@@ -8,23 +8,26 @@
   "Set session properties for SMTP mail delivery."
   [config]
   (let [props (java.util.Properties.)
-	port (or (:port config) 25)]
+        port (:port config)
+        port (if (string? port) port (str port))
+        auth (:auth config)
+        auth (if (string? auth) auth (str auth))]
     (doto props
       (.put "mail.host" (:host config))
       (.put "mail.port" port)
-      (.put "mail.socketFactor.port" port))
+      (.put "mail.socketFactory.port" port))
     (when (:user config)
-      (.put props (:user config)))
+      (.put props "mail.user" (:user config)))
     (when (:auth config)
-      (.put props "mail.auth" "true"))
+      (.put props "mail.auth" auth))
     (when (:ssl config)
       (doto props
-	(.put "mail.starttls.enable" "true")
-	(.put "mail.socketFactory.class"
-	      "javax.net.ssl.SSLSocketFactory")
-	(.put "mail.socketFactory.fallback" "false")))
-  
-  props))   
+        (.put "mail.starttls.enable" "true")
+        (.put "mail.socketFactory.class"
+              "javax.net.ssl.SSLSocketFactory")
+        (.put "mail.socketFactory.fallback" "false")))
+    
+    props))
 
 (defn- get-authenticator
   "Given a config map, get an instance of javax.mail.Authenticator
@@ -34,7 +37,7 @@ to use in creating a valid session."
                           (getPasswordAuthentication 
                            []
                            (javax.mail.PasswordAuthentication. 
-                            (:user config) (:password config))))]
+                            (:user config) (:pass config))))]
     authenticator))
 
 (defn get-session
@@ -50,14 +53,14 @@ values for the keys listed below.
   :auth       Boolean: attempt authorization with :user and :pass? Default: false"
   [config]
   (let [defaults {:host "localhost", :port 25, :ssl false, :auth false}
-	config (merge defaults config)
-	props (set-session-props config)
-	authenticator (get-authenticator config)
-	session (javax.mail.Session/getDefaultInstance props authenticator)
-	session-map {:config config
-		     :session-props props
-		     :session-authenticator authenticator
-		     :session-object session}]
+        config (merge defaults config)
+        props (set-session-props config)
+        authenticator (get-authenticator config)
+        session (javax.mail.Session/getDefaultInstance props authenticator)
+        session-map {:config config
+                     :session-props props
+                     :session-authenticator authenticator
+                     :session-object session}]
     (atom session-map)))
 
 (defmacro with-mail-session
