@@ -7,8 +7,8 @@
 
 (defn- set-session-props
   "Set session properties for SMTP mail delivery."
-  [config]
-  (let [props (java.util.Properties.)
+  [config & current-props]
+  (let [props (or (first current-props) (java.util.Properties.))
         port (:port config)
         port (if (string? port) port (str port))
         auth (:auth config)
@@ -31,8 +31,7 @@
     ; Any user-supplied properties?
     (when extra-keys
       (util/set-props props (select-keys config extra-keys)))
-
-    
+    ; return (props Java instance)
     props))
 
 (defn- get-authenticator
@@ -78,4 +77,15 @@ the variable *session* will be bound to the current JavaMail session."
 		(get-session ~config-or-session)
 		~config-or-session)]
 	(binding [*session* sess#]
-	   ~@body)))
+      ~@body)))
+
+(defn session-merge-config
+  "Given an existing session and a new config map, update the session
+properties with the new values. Returns the updated properties object."
+  [session new-config]
+  (let [current-props (:session-props @session)
+        updated-props (set-session-props new-config current-props)]
+    (swap! session assoc :session-props updated-props)
+    updated-props))
+
+    

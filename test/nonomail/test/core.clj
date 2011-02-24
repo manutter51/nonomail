@@ -2,9 +2,8 @@
   (:use [nonomail.core] :reload)
   (:use midje.sweet))
 
-(def test-config-host-only {:host "127.0.0.1"})
-
 (facts "about core/get-session"
+       
   "defaults and built-ins are correct"
   (let [session (get-session {})
 	config (:config @session)
@@ -53,5 +52,40 @@
     props => truthy
     (.get props "mail.host") => (just "anyhost")
     (.get props "mail.smtp.host") => (just "smtphost")
-    (.get props "mail.imap.host") => (just "imaphost"))
-  )
+    (.get props "mail.imap.host") => (just "imaphost")))
+
+(facts "about updating parameters"
+
+  "updated parameters replace initial parameters"
+  (let [config {:host "localhost"
+                "mail.smtp.host" "remote.smtp.host"
+                "mail.imap.host" "remote.imap.host"}
+        new-config {:host "remote.host"
+                    "mail.smtp.user" "joe-user"
+                    "mail.smtp.host" "other.smtp.host"}
+        session (get-session config)
+        props (:session-props @session)
+        old-host (.get props "mail.host")
+        old-smtp-host (.get props "mail.smtp.user")
+        old-imap-host (.get props "mail.imap.user")
+        updated-props (session-merge-config session new-config)
+        new-props (:session-props @session)
+        updated-host (.get props "mail.host")
+        updated-smtp-host (.get updated-props "mail.smtp.host")
+        updated-imap-host (.get updated-props "mail.imap.host")
+        updated-smtp-user (.get updated-props "mail.smtp.user")
+        new-host (.get new-props "mail.host")
+        new-smtp-host (.get new-props "mail.smtp.host")
+        new-imap-host (.get new-props "mail.imap.host")
+        new-smtp-user (.get updated-props "mail.smtp.user")]
+    props => truthy
+    updated-props => truthy
+    new-props => truthy
+    updated-host => (just "remote.host")
+    updated-smtp-host => (just "other.smtp.host")
+    updated-imap-host => (just "remote.imap.host")
+    updated-smtp-user => (just "joe-user")
+    new-host => (just "remote.host")
+    new-smtp-host => (just "other.smtp.host")
+    new-imap-host => (just "remote.imap.host")
+    new-smtp-user => (just "joe-user")))
