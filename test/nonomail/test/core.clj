@@ -13,7 +13,7 @@
     (.get props "mail.port") => "25"
     authenticator => #(instance? javax.mail.Authenticator %))
 
-  "parameters are passed in correctly"
+  "parameters are mapped correctly"
   (let [config {:host "myhost"
                 :port 123
                 :user "joeuser"
@@ -44,15 +44,22 @@
 (facts "about extra parameters"
   "extra parameters passed in correctly"
   (let [config {:host "anyhost"
-		"mail.smtp.host" "smtphost"
 		"mail.imap.host" "imaphost"}
 	session (get-session config)
 	props (:session-props @session)
 	]
     props => truthy
     (.get props "mail.host") => (just "anyhost")
-    (.get props "mail.smtp.host") => (just "smtphost")
     (.get props "mail.imap.host") => (just "imaphost")))
+
+(facts "about get-session-property"
+  "get-session-property gets correct property values"
+  (let [session (get-session {:host "my-host"
+			      "mail.smtp.host" "my-smtp"})
+	; for convenience, to keep lines shorter
+	get-prop (partial get-session-property session)]
+    (get-prop "mail.host") => (just "my-host")
+    (get-prop "mail.smtp.host") => (just "my-smtp")))
 
 (facts "about updating parameters"
 
@@ -68,7 +75,7 @@
         old-host (.get props "mail.host")
         old-smtp-host (.get props "mail.smtp.user")
         old-imap-host (.get props "mail.imap.user")
-        updated-props (session-merge-config session new-config)
+        updated-props (merge-session-config session new-config)
         new-props (:session-props @session)
         updated-host (.get props "mail.host")
         updated-smtp-host (.get updated-props "mail.smtp.host")

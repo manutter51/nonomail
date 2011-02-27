@@ -68,6 +68,14 @@ values for the keys listed below.
                      :session-object session}]
     (atom session-map)))
 
+(defn get-session-property
+  "[session property]
+Given a session and a property string, return the value of the 
+corresponding session property."
+  [session property]
+  (let [props (:session-props @session)]
+    (.get props property)))
+
 (defmacro with-mail-session
   "Sets up a session binding, given either a config map or an existing
 session (as created by get-session). When you invoke with-mail-session,
@@ -79,7 +87,7 @@ the variable *session* will be bound to the current JavaMail session."
 	(binding [*session* sess#]
       ~@body)))
 
-(defn session-merge-config
+(defn merge-session-config
   "Given an existing session and a new config map, update the session
 properties with the new values. Returns the updated properties object."
   [session new-config]
