@@ -1,4 +1,4 @@
-(ns nonomail.core
+(ns nonomail.session
   "Core mail functions used by the send and read libraries."
   (:import (javax.mail Authenticator Session Message Header))
   (:require [nonomail.util :as util]))

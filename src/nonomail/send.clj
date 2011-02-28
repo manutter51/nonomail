@@ -1,5 +1,5 @@
 (ns nonomail.send
-  (:use nonomail.core)
+  (:use nonomail.session)
   (:import [javax.mail Authenticator Session Message Header]
 	   [javax.mail.internet MimeMessage InternetAddress]))
 
@@ -42,11 +42,11 @@ If you pass in a string as a map key, (send) assumes it is a valid
 email custom header, and adds the key-value pair to the headers of
 the email.
 The (send) function also takes an optional session object, defaulting
-to nonomail.core/*session*"
+to nonomail.session/*session*"
   [email & session]
   (let [session (if (seq session) 
 		  (first session) 
-		  nonomail.core/*session*)
+		  nonomail.session/*session*)
 	java-session (:session-object @session)
 	from (get email :from (get-default-sender session))
 	to (:to email)
