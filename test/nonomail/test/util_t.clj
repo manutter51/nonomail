@@ -1,4 +1,4 @@
-(ns nonomail.test.utils
+(ns nonomail.test.util-t
   (:use nonomail.util)
   (:use midje.sweet)
   )

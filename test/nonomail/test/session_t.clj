@@ -1,8 +1,8 @@
-(ns nonomail.test.core
-  (:use [nonomail.core] :reload)
+(ns nonomail.test.session-t
+  (:use [nonomail.session] :reload)
   (:use midje.sweet))
 
-(facts "about core/get-session"
+(facts "about session/get-session"
        
   "defaults and built-ins are correct"
   (let [session (get-session {})
