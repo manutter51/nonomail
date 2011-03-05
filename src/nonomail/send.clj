@@ -1,7 +1,8 @@
 (ns nonomail.send
   (:use nonomail.core)
   (:import [javax.mail Authenticator Session Message Header]
-	   [javax.mail.internet MimeMessage InternetAddress]))
+	   [javax.mail.internet MimeMessage InternetAddress])
+  (:require [nonomail.util :as util]))
 
 (defn- new-message
   "[session]
@@ -56,8 +57,7 @@ to nonomail.core/*session*"
 	body (if (= type :plain) 
 	       (:body email)
 	       (get-multipart-body (:body email)))
-	extra-keys (filter string? (keys email))
-	extra-headers (select-keys email extra-keys)
+	extra-headers (util/only-string-keys email)
 	msg (MimeMessage. java-session)
 	]
     (.setFrom msg (InternetAddress. from))

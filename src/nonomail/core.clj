@@ -13,7 +13,7 @@
         port (if (string? port) port (str port))
         auth (:auth config)
         auth (if (string? auth) auth (str auth))
-	extra-keys (vec (filter string? (keys config)))]
+	extra-headers (util/only-string-keys config)]
     (doto props
       (.put "mail.host" (:host config))
       (.put "mail.port" port)
@@ -29,8 +29,8 @@
               "javax.net.ssl.SSLSocketFactory")
         (.put "mail.socketFactory.fallback" "false")))
     ; Any user-supplied properties?
-    (when extra-keys
-      (util/set-props props (select-keys config extra-keys)))
+    (when extra-headers
+      (util/set-props props extra-headers))
     ; return (props Java instance)
     props))
 

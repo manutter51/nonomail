@@ -25,4 +25,10 @@
   "p-bean"
   (let [p3 (new-props)]
     (set-props p3 sample-map)
-    (p-bean p3) => (just {:a "foo" :b "bar" :c "baz"})))
+    (p-bean p3) => (just {:a "foo" :b "bar" :c "baz"}))
+
+  "only-string-keys"
+  (let [m {:a-keyword "This is a keyword"
+	   "A string" "This is a string"}
+	m-str (only-string-keys m)]
+    m-str => (just {"A string" "This is a string"})))

@@ -24,3 +24,12 @@ set on the object, with the key names converted to keywords."
   (let [keys (prop-names p)
 	pull-key (fn [m k] (assoc m (keyword k) (.get p k)))]
     (reduce pull-key {} keys)))
+
+(defn only-string-keys
+  "[any-map]
+Given a map whose keys are a mixture of keywords and strings (and possibly
+other types), return a map containing only the key-value pairs whose keys
+are strings."
+  [a-map]
+  (let [str-keys (filter string? (keys a-map))]
+    (select-keys a-map str-keys)))
