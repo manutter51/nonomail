@@ -7,8 +7,8 @@
   "defaults and built-ins are correct"
   (let [session (get-session {})
 	config (:config @session)
-	props (:session-props @session)
-	authenticator (:session-authenticator @session)]
+	props (:props @session)
+	authenticator (:authenticator @session)]
     (.get props "mail.host") => "localhost"
     (.get props "mail.port") => "25"
     authenticator => #(instance? javax.mail.Authenticator %))
@@ -21,7 +21,7 @@
                 :ssl true
                 :auth true}
         session (get-session config)
-        props (:session-props @session)
+        props (:props @session)
         host (.get props "mail.host")
         port (.get props "mail.port")
         user (.get props "mail.user")
@@ -46,7 +46,7 @@
   (let [config {:host "anyhost"
 		"mail.imap.host" "imaphost"}
 	session (get-session config)
-	props (:session-props @session)
+	props (:props @session)
 	]
     props => truthy
     (.get props "mail.host") => (just "anyhost")
@@ -59,7 +59,11 @@
 	; for convenience, to keep lines shorter
 	get-prop (partial get-session-property session)]
     (get-prop "mail.host") => (just "my-host")
-    (get-prop "mail.smtp.host") => (just "my-smtp")))
+    (get-prop "mail.smtp.host") => (just "my-smtp"))
+
+  "get-session-property handles missing properties correctly"
+  (let [session (get-session {})]
+    (get-session-property session "no.such.property") => nil?))
 
 (facts "about updating parameters"
 
@@ -71,12 +75,12 @@
                     "mail.smtp.user" "joe-user"
                     "mail.smtp.host" "other.smtp.host"}
         session (get-session config)
-        props (:session-props @session)
+        props (:props @session)
         old-host (.get props "mail.host")
         old-smtp-host (.get props "mail.smtp.user")
         old-imap-host (.get props "mail.imap.user")
         updated-props (merge-session-config session new-config)
-        new-props (:session-props @session)
+        new-props (:props @session)
         updated-host (.get props "mail.host")
         updated-smtp-host (.get updated-props "mail.smtp.host")
         updated-imap-host (.get updated-props "mail.imap.host")

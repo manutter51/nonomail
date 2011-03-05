@@ -6,7 +6,13 @@
 (declare *session*) ; something for binding to point at, in with-mail-session
 
 (defn- set-session-props
-  "Set session properties for SMTP mail delivery."
+  "[config-map & current-props]
+Set session properties for SMTP mail delivery. The config-map is a
+standard map with keyword-value pairs.  If you need to add a custom
+property to the property list, you can use the property name as the
+key. If you pass in a java.util.Properties object as the value of
+current-props, this function will update the properties on that object
+rather than creating a new one."
   [config & current-props]
   (let [props (or (first current-props) (java.util.Properties.))
         port (:port config)
@@ -35,7 +41,8 @@
     props))
 
 (defn- get-authenticator
-  "Given a config map, get an instance of javax.mail.Authenticator
+  "[config-map]
+Given a config map, get an instance of javax.mail.Authenticator
 to use in creating a valid session."
   [config]
   (let [authenticator (proxy [javax.mail.Authenticator] [] 
@@ -46,16 +53,23 @@ to use in creating a valid session."
     authenticator))
 
 (defn get-session
-  "Given a config map, create a javax.mail.Session object to be
-used in other JavaMail functions. The config map should contain
-values for the keys listed below.
+  "[config-map]
+Given a config map, create a session object to be used in other
+JavaMail functions. The config map should contain values for
+the keys listed below.
 
-  :host       The mail host to connect to. Default localhost.
-  :port       The port. Default 25.
-  :user       Username [optional].
-  :pass       Password [optional].
-  :ssl        Boolean: use SSL for connections? Default: false
-  :auth       Boolean: attempt authorization with :user and :pass? Default: false"
+    :host       The mail host to connect to. Default localhost.
+    :port       The port. Default 25.
+    :user       Username [optional].
+    :pass       Password [optional].
+    :ssl        Boolean: use SSL for connections? Default: false
+    :auth       Boolean: attempt authorization with :user and :pass? Default: false
+
+This function returns an atom containing a map with the following keys:
+    :config          the original config map
+    :props           the java.util.Properties object
+    :authenticator   the javax.mail.Authenticator object
+    :session         the javax.mail.Session object"
   [config]
   (let [defaults {:host "localhost", :port 25, :ssl false, :auth false}
         config (merge defaults config)
@@ -63,9 +77,9 @@ values for the keys listed below.
         authenticator (get-authenticator config)
         session (javax.mail.Session/getDefaultInstance props authenticator)
         session-map {:config config
-                     :session-props props
-                     :session-authenticator authenticator
-                     :session-object session}]
+                     :props props
+                     :authenticator authenticator
+                     :session session}]
     (atom session-map)))
 
 (defn get-session-property
@@ -73,13 +87,15 @@ values for the keys listed below.
 Given a session and a property string, return the value of the 
 corresponding session property."
   [session property]
-  (let [props (:session-props @session)]
+  (let [props (:props @session)]
     (.get props property)))
 
 (defmacro with-mail-session
-  "Sets up a session binding, given either a config map or an existing
+  "[config-or-session & body]
+Sets up a session binding, given either a config map or an existing
 session (as created by get-session). When you invoke with-mail-session,
-the variable *session* will be bound to the current JavaMail session."
+the variable nonomail.session/*session* will be bound to the current
+JavaMail session."
   [config-or-session & body]
   `(let [sess# (if (map? ~config-or-session)
 		(get-session ~config-or-session)
@@ -88,12 +104,13 @@ the variable *session* will be bound to the current JavaMail session."
       ~@body)))
 
 (defn merge-session-config
-  "Given an existing session and a new config map, update the session
+  "[session new-config]
+Given an existing session and a new config map, update the session
 properties with the new values. Returns the updated properties object."
   [session new-config]
-  (let [current-props (:session-props @session)
+  (let [current-props (:props @session)
         updated-props (set-session-props new-config current-props)]
-    (swap! session assoc :session-props updated-props)
+    (swap! session assoc :props updated-props)
     updated-props))
 
     
