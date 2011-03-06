@@ -33,3 +33,12 @@ are strings."
   [a-map]
   (let [str-keys (filter string? (keys a-map))]
     (select-keys a-map str-keys)))
+
+(defn msg->str
+  "[msg]
+Given a javax.mail.MimeMessage object, return the string representation
+of that object, as it would be passed to a Mail Delivery Agent."
+  [msg]
+  (with-open [out (java.io.ByteArrayOutputStream.)]
+      (.writeTo msg out)
+      (str out)))

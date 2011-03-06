@@ -4,7 +4,7 @@
                  [org.clojure/clojure-contrib "1.2.0"]
                  [javax.mail/mail "1.4.4"]
                  ]
-  :dev-dependencies [[swank-clojure "1.3.0-SNAPSHOT"]
+  :dev-dependencies [[swank-clojure "1.2.0"]
                     ; [marginalia "0.2.3"] ; optional, uncomment if you want to make developer docs
                      [midje "1.1-alpha-1"]]
 )

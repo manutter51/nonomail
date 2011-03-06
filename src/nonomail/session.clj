@@ -3,8 +3,6 @@
   (:import (javax.mail Authenticator Session Message Header))
   (:require [nonomail.util :as util]))
 
-(declare *session*) ; something for binding to point at, in with-mail-session
-
 (defn- set-session-props
   "[config-map & current-props]
 Set session properties for SMTP mail delivery. The config-map is a
@@ -65,11 +63,16 @@ the keys listed below.
     :ssl        Boolean: use SSL for connections? Default: false
     :auth       Boolean: attempt authorization with :user and :pass? Default: false
 
+The config map can also contain some error-handling directives:
+
+    :require-valid-recipients    Don't send mail unless all recipients are valid [default true]
+
 This function returns an atom containing a map with the following keys:
     :config          the original config map
     :props           the java.util.Properties object
     :authenticator   the javax.mail.Authenticator object
-    :session         the javax.mail.Session object"
+    :session         the javax.mail.Session object
+    :error           the last error encountered by this session"
   [config]
   (let [defaults {:host "localhost", :port 25, :ssl false, :auth false}
         config (merge defaults config)
@@ -79,7 +82,9 @@ This function returns an atom containing a map with the following keys:
         session-map {:config config
                      :props props
                      :authenticator authenticator
-                     :session session}]
+                     :session session
+		     :require-valid-recipients (get config :require-valid-recipients true)
+		     :error []}]
     (atom session-map)))
 
 (defn get-session-property
@@ -89,19 +94,6 @@ corresponding session property."
   [session property]
   (let [props (:props @session)]
     (.get props property)))
-
-(defmacro with-mail-session
-  "[config-or-session & body]
-Sets up a session binding, given either a config map or an existing
-session (as created by get-session). When you invoke with-mail-session,
-the variable nonomail.session/*session* will be bound to the current
-JavaMail session."
-  [config-or-session & body]
-  `(let [sess# (if (map? ~config-or-session)
-		(get-session ~config-or-session)
-		~config-or-session)]
-	(binding [*session* sess#]
-      ~@body)))
 
 (defn merge-session-config
   "[session new-config]
@@ -113,4 +105,25 @@ properties with the new values. Returns the updated properties object."
     (swap! session assoc :props updated-props)
     updated-props))
 
-    
+(defn reset-error!
+  "[session error]
+Sets the session :error to error. This will typically be either a string
+message or a Java exception object."
+  [session error]
+  (swap! session assoc :error []))
+
+(defn add-error!
+  "[session error]
+Adds the given error to a list of errors associated with the session's
+:error parameter."
+  [session error]
+  (let [current (:error @session)
+	newer (conj current error)]
+    (swap! session assoc :error newer)))
+
+(defn has-error?
+  "[session]
+Returns truthy if the :error param is not nil."
+  [session]
+  (:error @session))
+
