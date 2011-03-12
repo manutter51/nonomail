@@ -121,12 +121,13 @@ Adds the given error to a list of errors associated with the session's
 	newer (conj current error)]
     (swap! session assoc :error newer)))
 
-(defn has-error?
-  "[session]
-Returns truthy if the :error param is not nil."
-  [session]
-  (:error @session))
-
 (defn get-errors
   [session]
   (:error @session))
+
+(defn has-error?
+  "[session]
+Returns truthy if the :error param is not nil or an empty array."
+  [session]
+  (pos? (count (:error @session))))
+

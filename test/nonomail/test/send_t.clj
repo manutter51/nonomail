@@ -49,6 +49,6 @@
 	    }
 	msg (msg->str (make-msg *session* m1))]
     msg => #"Content-Type: multipart/mixed"
-    msg => #"Content-Type: image/gif; name=testfile.gif"
+    msg => #"Content-Type: (image/gif|application/octet-stream); name=testfile.gif"
     msg => #"Content-Transfer-Encoding: base64"
     msg => #"Content-Disposition: attach; filename=testfile.gif" ))
