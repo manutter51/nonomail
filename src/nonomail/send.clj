@@ -1,9 +1,13 @@
 (ns nonomail.send
   (:use nonomail.session)
   (:use [clojure.contrib.str-utils :only [str-join]])
-  (:import [javax.mail Authenticator Session Message Header Message$RecipientType]
-	   [javax.mail.internet MimeMessage InternetAddress AddressException])
+  (:import [javax.mail Authenticator Session Message Header
+	    Message$RecipientType]
+	   [javax.mail.internet MimeMessage MimeMultipart MimeBodyPart
+	    InternetAddress AddressException])
   (:require [nonomail.util :as util]))
+
+(def plain-type #{:plain :html "text/plain" "text/html"})
 
 (defn new-message
   "[session]
@@ -12,18 +16,30 @@ Creates a new instance of a JavaMail MIME message given a session object"
   (let [session (if (instance? Session session)
 		  session
 		  (:session @session))]
-  (MimeMessage. session)))
+    (MimeMessage. session)))
 
-(defn multipart-body
+(defn multipart
   "[parts]
 Given an array of parts, construct a multipart MIME message. Each
 part should be a map with the following keys:
     :type -- (string) the MIME type for this part
-    :body -- (mixed) the contents of this body part. If the MIME type
+    :content -- (mixed) the contents of this body part. If the MIME type
 is also a multipart MIME type, the contents can be a vector of parts"
   [parts]
-  (let [part nil] ;not implemented yet
-    (throw (Exception. "Not Implemented Yet"))))
+  (let [jmulti (MimeMultipart.)]
+    (doseq [{:keys [type body]} parts]
+      (let [inner-part (MimeBodyPart.)]
+	(cond
+	 (#{:plain "text/plain"} type) (.setText inner-part body)
+	 (#{:html "text/html"} type) (.setContent inner-part body "text/html")
+	 (#{:attach :inline} type) (doto inner-part
+				     (.attachFile (util/as-file body))
+				     (.setDisposition (name type)))
+	 (= :multipart type) (.setContent inner-part (multipart body) "multipart/mixes")
+	 :else
+	 (.setContent inner-part (util/as-file body) type))
+	(.addBodyPart jmulti inner-part)))
+    jmulti))
 
 (defn- get-default-sender
   "[session]
@@ -106,9 +122,9 @@ Returns the javax.mail.MimeMessage object."
 	from (address->InternetAddress from)
 	subject (get email :subject "")
 	type (get email :type :plain)
-	body (if (= type :plain) 
+	body (if (plain-type type) 
 	       (:body email)
-	       (multipart-body (:body email)))
+	       (multipart (:body email)))
 	extra-headers (util/only-string-keys email)
 	msg (MimeMessage. java-session)
 	]

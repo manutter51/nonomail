@@ -42,3 +42,13 @@ of that object, as it would be passed to a Mail Delivery Agent."
   (with-open [out (java.io.ByteArrayOutputStream.)]
       (.writeTo msg out)
       (str out)))
+
+(defn as-file
+  "[f]
+If f is a java.io.File instance, return it, else convert it to an instance
+of java.io.File"
+  [f]
+  (if (instance? java.io.File f)
+    f
+    (java.io.File. f)))
+  

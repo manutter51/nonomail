@@ -36,3 +36,19 @@
     jm1-str => #"This is a test"
     jm1-str => #"Message-ID: "
     jm1-str => #"Content-Type: text/plain;"))
+
+(facts "about creating multipart messages"
+  (let [m1 {:to "me@localhost"
+	    :from "myself@localhost"
+	    :subject "Here is that file I told you about"
+	    :type :multipart
+	    :body [{:type :plain
+		    :body "Hey there, here is the file I mentioned."}
+		   {:type :attach
+		    :body "./test/nonomail/test/testfile.gif"}]
+	    }
+	msg (msg->str (make-msg *session* m1))]
+    msg => #"Content-Type: multipart/mixed"
+    msg => #"Content-Type: image/gif; name=testfile.gif"
+    msg => #"Content-Transfer-Encoding: base64"
+    msg => #"Content-Disposition: attach; filename=testfile.gif" ))

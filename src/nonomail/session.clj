@@ -127,3 +127,6 @@ Returns truthy if the :error param is not nil."
   [session]
   (:error @session))
 
+(defn get-errors
+  [session]
+  (:error @session))
