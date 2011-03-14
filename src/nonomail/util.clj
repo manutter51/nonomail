@@ -60,9 +60,9 @@ Given a key, plus one or more maps, plus a default value, return the value in th
 map that has a matching key, else return the default."
   [k & maps+default]
   (loop [k k, m (first maps+default) r (next maps+default)]
-    (if (and (map? m)
-             (get m k nil))
-      (get m k)
-      (if r
-        (recur k (first r) (next r))
-        m))))
+    (let [answer (if (map? m) (get m k) m)]
+      (if answer
+        answer
+        (if r
+          (recur k (first r) (next r))
+          answer)))))
