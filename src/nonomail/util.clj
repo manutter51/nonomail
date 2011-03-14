@@ -51,4 +51,18 @@ of java.io.File"
   (if (instance? java.io.File f)
     f
     (java.io.File. f)))
-  
+
+(defn get-first
+  "[key & maps-or-default]
+Usage: (get-first :foo map1 map2 map3 \"default\")
+
+Given a key, plus one or more maps, plus a default value, return the value in the first
+map that has a matching key, else return the default."
+  [k & maps+default]
+  (loop [k k, m (first maps+default) r (next maps+default)]
+    (if (and (map? m)
+             (get m k nil))
+      (get m k)
+      (if r
+        (recur k (first r) (next r))
+        m))))
