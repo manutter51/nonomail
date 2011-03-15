@@ -30,9 +30,9 @@ Example:
         config (apply hash-map (pre-hash config))
         session-config (:config @session)
         errors []
-        host (get-first :host config session-config "localhost")
-        user (get-first :user config session-config nil)
-        password (get-first :pass config session-config nil)
-        is-ssl (get-first :ssl config session-config false)
+        host (util/get-first :host config session-config "localhost")
+        user (util/get-first :user config session-config nil)
+        password (util/get-first :pass config session-config nil)
+        is-ssl (util/get-first :ssl config session-config false)
         ]
     ))

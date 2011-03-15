@@ -5,6 +5,6 @@
                  [javax.mail/mail "1.4.4"]
                  ]
   :dev-dependencies [[swank-clojure "1.2.0"]
-                    ; [marginalia "0.2.3"] ; optional, uncomment if you want to make developer docs
+		     [marginalia "0.5.0"]
                      [midje "1.1-alpha-1"]]
 )
