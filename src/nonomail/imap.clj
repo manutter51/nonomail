@@ -3,8 +3,12 @@
   (:import [com.sun.mail.imap IMAPStore IMAPFolder IMAPMessage]))
 
 (defn- pre-hash
-  [ary]
-  (apply concat (partition 2 ary)))
+  [coll]
+  (let [ct (count coll)
+        its (if (even? ct)
+              coll
+              (conj (vec coll) :exists))]
+  (concat its))
 
 (defn get-store
   "[session & config]

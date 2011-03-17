@@ -66,3 +66,35 @@ map that has a matching key, else return the default."
         (if r
           (recur k (first r) (next r))
           answer)))))
+
+(defn parse-args
+  "[coll & singles]
+Parses a list of arguments, optionally containing singleton keywords. For
+example, if my-list looks like this:
+
+    [:foo 1
+     :bar :b
+     :baz
+     :quux 4]
+
+then (parse-args my-list #{:foo}) will return {:foo 1, :bar :b, :baz :exists,
+ :quux 4}. The optional second argument is a set of keywords that are legal to
+use as singletons; if you leave off the #{:foo}, parse-args will assume that
+:baz and :quux are a key-value pair, and will return {:foo 1, :bar :b,
+:baz :quux, 4 :exists) instead of the map you wanted."
+  [coll & singles]
+  (let [singleton? (if (set? (first singles))
+                     (first singles)
+                     (into #{} singles))]
+    (loop [m {} k (first coll) r (rest coll)]
+      (if (nil? k)
+        m
+        (let [v (first r)
+              r2 (next r)]
+          (cond
+           (nil? v) (recur (assoc m k :exists) nil nil)
+           (keyword? v) (if (singleton? k)
+                          (recur (assoc m k :exists) v r2)
+                          (recur (assoc m k v) (first r2) (rest r2)))
+           :else (recur (assoc m k v) (first r2) (rest r2))))))))
+        
