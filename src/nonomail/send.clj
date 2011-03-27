@@ -19,14 +19,16 @@ Creates a new instance of a JavaMail MIME message given a session object"
     (MimeMessage. session)))
 
 (defn multipart
-  "[parts]
+  "[parts subtype]
 Given an array of parts, construct a multipart MIME message. Each
 part should be a map with the following keys:
     :type -- (string) the MIME type for this part
     :content -- (mixed) the contents of this body part. If the MIME type
 is also a multipart MIME type, the contents can be a vector of parts"
-  [parts]
-  (let [jmulti (MimeMultipart.)]
+  [parts subtype]
+  (let [jmulti (if subtype
+		 (MimeMultipart. subtype)
+		 (MimeMultipart.))]
     (doseq [{:keys [type body]} parts]
       (let [inner-part (MimeBodyPart.)]
 	(cond
@@ -35,7 +37,12 @@ is also a multipart MIME type, the contents can be a vector of parts"
 	 (#{:attach :inline} type) (doto inner-part
 				     (.attachFile (util/as-file body))
 				     (.setDisposition (name type)))
-	 (= :multipart type) (.setContent inner-part (multipart body) "multipart/mixes")
+	 (= :multipart type) (.setContent inner-part 
+					  (multipart body) 
+					  "multipart/mixed")
+	 (= :multipart-alternative type) (.setContent inner-part 
+						      (multipart body) 
+						      "multipart/alternative")
 	 :else
 	 (.setContent inner-part (util/as-file body) type))
 	(.addBodyPart jmulti inner-part)))
@@ -109,6 +116,7 @@ JavaMail message and send it. Valid parameters are:
     :bcc -- [optional] a BCC recipient
     :subject -- subject heading for message
     :type -- :plain or :multipart, defaults to :plain
+    :subtype -- (multipart messages
     :body -- body of email message, or array of parts if multipart type
 
 If you pass in a string as a map key, (send) assumes it is a valid
@@ -124,7 +132,7 @@ Returns the javax.mail.MimeMessage object."
 	type (get email :type :plain)
 	body (if (plain-type type) 
 	       (:body email)
-	       (multipart (:body email)))
+	       (multipart (:body email) (get email :subtype nil)))
 	extra-headers (util/only-string-keys email)
 	msg (MimeMessage. java-session)
 	]
@@ -151,9 +159,11 @@ Returns the javax.mail.MimeMessage object."
 Sends an email message using the given session. If msg is an instance of
 class MimeMessage, sends it immediately. If it's an email map, send! will
 first construct a MimeMessage using (make-msg msg), and then send that."
-  [session msg]
+  [session msg & debug]
   (let [msg (if (instance? MimeMessage msg)
 	      msg
 	      (make-msg session  msg))]
-      (when-not (has-error? session)
-	(javax.mail.Transport/send msg))))
+    (when (seq debug)
+      (pr msg))
+    (when-not (has-error? session)
+      (javax.mail.Transport/send msg))))

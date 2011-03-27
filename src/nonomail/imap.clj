@@ -8,7 +8,7 @@
         its (if (even? ct)
               coll
               (conj (vec coll) :exists))]
-  (concat its))
+  (concat its)))
 
 (defn get-store
   "[session & config]
