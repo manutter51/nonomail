@@ -1,6 +1,7 @@
 build/
 lib/
 classes/
+docs/
 *~
 *.log
 *.bak
