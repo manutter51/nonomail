@@ -11,8 +11,7 @@
   (concat its)))
 
 (defn get-store
-  "[session & config]
-Given a session and a list of zero or more options, construct an IMAPStore object
+  "Given a session and a list of zero or more options, construct an IMAPStore object
 and connect to it. Returns an atom containing a map representing the IMAP store
 and its current list of error messages if any.
 
@@ -23,6 +22,7 @@ Example:
                              :user \"imauser\"
                              :pass \"itsapassword\"
                              :ssl true)
+    ;; ==>
     @my-store ; {:store <#IMAPStore-object>
               ;  :errors []}
               ;     - or -

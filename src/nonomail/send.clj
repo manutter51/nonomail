@@ -1,6 +1,6 @@
 (ns nonomail.send
   (:use nonomail.session)
-  (:use [clojure.contrib.str-utils :only [str-join]])
+  (:use [clojure.string :only [join]])
   (:import [javax.mail Authenticator Session Message Header
 	    Message$RecipientType]
 	   [javax.mail.internet MimeMessage MimeMultipart MimeBodyPart
@@ -10,8 +10,7 @@
 (def plain-type #{:plain :html "text/plain" "text/html"})
 
 (defn new-message
-  "[session]
-Creates a new instance of a JavaMail MIME message given a session object"
+  "Creates a new instance of a JavaMail MIME message given a session object"
   [session]
   (let [session (if (instance? Session session)
 		  session
@@ -19,8 +18,7 @@ Creates a new instance of a JavaMail MIME message given a session object"
     (MimeMessage. session)))
 
 (defn multipart
-  "[parts subtype]
-Given an array of parts, construct a multipart MIME message. Each
+  "Given an array of parts, construct a multipart MIME message. Each
 part should be a map with the following keys:
     :type -- (string) the MIME type for this part
     :content -- (mixed) the contents of this body part. If the MIME type
@@ -49,8 +47,7 @@ is also a multipart MIME type, the contents can be a vector of parts"
     jmulti))
 
 (defn- get-default-sender
-  "[session]
-Return a default email address by grabbing the session user and mail
+  "Return a default email address by grabbing the session user and mail
 host, and sticking an '@' sign between them"
   [session]
   (let [user (get-session-property session "mail.user")
@@ -58,8 +55,7 @@ host, and sticking an '@' sign between them"
     (str user "@" host)))
 
 (defn address->InternetAddress
-  "[address]
-Given an email address in the form of a string, returns
+  "Given an email address in the form of a string, returns
 the corresponding javax.mail.internet.InternetAddress object,
 or the original string if it could not be converted."
   [address]
@@ -69,8 +65,7 @@ or the original string if it could not be converted."
       address)))
 
 (defn get-addresses
-  "[addresses]
-Given an email address or a vector of addresses, create the
+  "Given an email address or a vector of addresses, create the
 corresponding javax.mail.internet.InternetAddress objects.
 Results are returned as a map, with the key :good mapped to an
 array of valid InternetAddress objects, and the key :bad
@@ -85,8 +80,7 @@ mapped to a vector of any invalid addresses."
 
 
 (defn- add-recipients!
-  "[session msg type recipients]
-Adds the list of recipients (if any) to the appropriate email
+  "Adds the list of recipients (if any) to the appropriate email
 header (To, CC or BCC) based on the type. If any of the recipients
 is not a valid email address, sets the :error parameter on the
 session."
@@ -96,19 +90,17 @@ session."
       (.addRecipient msg type r))
     (when (and (not (nil? bad))
 	       (:require-valid-recipients session))
-      (add-error! session (str "Bad address(es): '" (str-join "', '") "'")))))
+      (add-error! session (str "Bad address(es): '" (join "', '") "'")))))
 
 (defmacro add-any-recipients
-  "[key type]
-Convenience macro, plugs in boilerplate code. Only valid for send! function."
+  "Convenience macro, plugs in boilerplate code. Only valid for send! function."
   [key type]
   `(when-let [v# (~key ~'email)]
      (let [v# (if (string? v#) (vector v#) v#)]
        (add-recipients! ~'session ~'msg (~type) v#))))
 	
 (defn make-msg
-  "[session email]
-Given a map of valid parameters for an email message, set up a
+  "Given a map of valid parameters for an email message, set up a
 JavaMail message and send it. Valid parameters are:
     :from -- the sender email address (defaults to session value)
     :to -- a single recipient or array of recipients (string)
@@ -155,8 +147,7 @@ Returns the javax.mail.MimeMessage object."
     msg))
 
 (defn send!
-  "[session msg]
-Sends an email message using the given session. If msg is an instance of
+  "Sends an email message using the given session. If msg is an instance of
 class MimeMessage, sends it immediately. If it's an email map, send! will
 first construct a MimeMessage using (make-msg msg), and then send that."
   [session msg & debug]

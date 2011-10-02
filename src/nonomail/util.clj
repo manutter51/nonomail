@@ -26,8 +26,7 @@ set on the object, with the key names converted to keywords."
     (reduce pull-key {} keys)))
 
 (defn only-string-keys
-  "[any-map]
-Given a map whose keys are a mixture of keywords and strings (and possibly
+  "Given a map whose keys are a mixture of keywords and strings (and possibly
 other types), return a map containing only the key-value pairs whose keys
 are strings."
   [a-map]
@@ -35,8 +34,7 @@ are strings."
     (select-keys a-map str-keys)))
 
 (defn msg->str
-  "[msg]
-Given a javax.mail.MimeMessage object, return the string representation
+  "Given a javax.mail.MimeMessage object, return the string representation
 of that object, as it would be passed to a Mail Delivery Agent."
   [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
@@ -44,8 +42,7 @@ of that object, as it would be passed to a Mail Delivery Agent."
       (str out)))
 
 (defn as-file
-  "[f]
-If f is a java.io.File instance, return it, else convert it to an instance
+  "If f is a java.io.File instance, return it, else convert it to an instance
 of java.io.File"
   [f]
   (if (instance? java.io.File f)
@@ -53,8 +50,7 @@ of java.io.File"
     (java.io.File. f)))
 
 (defn get-first
-  "[key & maps-or-default]
-Usage: (get-first :foo map1 map2 map3 \"default\")
+  "Usage: (get-first :foo map1 map2 map3 \"default\")
 
 Given a key, plus one or more maps, plus a default value, return the value in the first
 map that has a matching key, else return the default."
@@ -68,8 +64,7 @@ map that has a matching key, else return the default."
           answer)))))
 
 (defn parse-args
-  "[coll & singles]
-Parses a list of arguments, optionally containing singleton keywords. For
+  "Parses a list of arguments, optionally containing singleton keywords. For
 example, if my-list looks like this:
 
     [:foo 1

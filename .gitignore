@@ -7,3 +7,4 @@ docs/
 *.bak
 *.jar
 *.war
+src/nonomail/config.clj

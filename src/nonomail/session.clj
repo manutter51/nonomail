@@ -4,8 +4,7 @@
   (:require [nonomail.util :as util]))
 
 (defn- set-session-props
-  "[config-map & current-props]
-Set session properties for SMTP mail delivery. The config-map is a
+  "Set session properties for SMTP mail delivery. The config-map is a
 standard map with keyword-value pairs.  If you need to add a custom
 property to the property list, you can use the property name as the
 key. If you pass in a java.util.Properties object as the value of
@@ -39,8 +38,7 @@ rather than creating a new one."
     props))
 
 (defn- get-authenticator
-  "[config-map]
-Given a config map, get an instance of javax.mail.Authenticator
+  "Given a config map, get an instance of javax.mail.Authenticator
 to use in creating a valid session."
   [config]
   (let [authenticator (proxy [javax.mail.Authenticator] [] 
@@ -51,8 +49,7 @@ to use in creating a valid session."
     authenticator))
 
 (defn get-session
-  "[config-map]
-Given a config map, create a session object to be used in other
+  "Given a config map, create a session object to be used in other
 JavaMail functions. The config map should contain values for
 the keys listed below.
 
@@ -88,16 +85,14 @@ This function returns an atom containing a map with the following keys:
     (atom session-map)))
 
 (defn get-session-property
-  "[session property]
-Given a session and a property string, return the value of the 
+  "Given a session and a property string, return the value of the 
 corresponding session property."
   [session property]
   (let [props (:props @session)]
     (.get props property)))
 
 (defn merge-session-config
-  "[session new-config]
-Given an existing session and a new config map, update the session
+  "Given an existing session and a new config map, update the session
 properties with the new values. Returns the updated properties object."
   [session new-config]
   (let [current-props (:props @session)
@@ -106,15 +101,13 @@ properties with the new values. Returns the updated properties object."
     updated-props))
 
 (defn reset-error!
-  "[session error]
-Sets the session :error to error. This will typically be either a string
+  "Sets the session :error to error. This will typically be either a string
 message or a Java exception object."
   [session error]
   (swap! session assoc :error []))
 
 (defn add-error!
-  "[session error]
-Adds the given error to a list of errors associated with the session's
+  "Adds the given error to a list of errors associated with the session's
 :error parameter."
   [session error]
   (let [current (:error @session)
@@ -126,8 +119,7 @@ Adds the given error to a list of errors associated with the session's
   (:error @session))
 
 (defn has-error?
-  "[session]
-Returns truthy if the :error param is not nil or an empty array."
+  "Returns truthy if the :error param is not nil or an empty array."
   [session]
   (pos? (count (:error @session))))
 
