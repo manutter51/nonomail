@@ -25,25 +25,25 @@ part should be a map with the following keys:
 is also a multipart MIME type, the contents can be a vector of parts"
   [parts subtype]
   (let [jmulti (if subtype
-		 (MimeMultipart. subtype)
-		 (MimeMultipart.))]
+                 (MimeMultipart. subtype)
+                 (MimeMultipart.))]
     (doseq [{:keys [type body]} parts]
       (let [inner-part (MimeBodyPart.)]
-	(cond
-	 (#{:plain "text/plain"} type) (.setText inner-part body)
-	 (#{:html "text/html"} type) (.setContent inner-part body "text/html")
-	 (#{:attach :inline} type) (doto inner-part
-				     (.attachFile (util/as-file body))
-				     (.setDisposition (name type)))
-	 (= :multipart type) (.setContent inner-part 
-					  (multipart body) 
-					  "multipart/mixed")
-	 (= :multipart-alternative type) (.setContent inner-part 
-						      (multipart body) 
-						      "multipart/alternative")
-	 :else
-	 (.setContent inner-part (util/as-file body) type))
-	(.addBodyPart jmulti inner-part)))
+        (cond
+         (#{:plain "text/plain"} type) (.setText inner-part body)
+         (#{:html "text/html"} type) (.setContent inner-part body "text/html")
+         (#{:attach :inline} type) (doto inner-part
+                                     (.attachFile (util/as-file body))
+                                     (.setDisposition (name type)))
+         (= :multipart type) (.setContent inner-part 
+                                          (multipart body) 
+                                          "multipart/mixed")
+         (= :multipart-alternative type) (.setContent inner-part 
+                                                      (multipart body) 
+                                                      "multipart/alternative")
+         :else
+         (.setContent inner-part (util/as-file body) type))
+        (.addBodyPart jmulti inner-part)))
     jmulti))
 
 (defn- get-default-sender
@@ -78,7 +78,6 @@ mapped to a vector of any invalid addresses."
 	bad-list (group-by string? addr-obs)]
     {:good (bad-list false), :bad (bad-list true)}))
 
-
 (defn- add-recipients!
   "Adds the list of recipients (if any) to the appropriate email
 header (To, CC or BCC) based on the type. If any of the recipients
@@ -108,7 +107,7 @@ JavaMail message and send it. Valid parameters are:
     :bcc -- [optional] a BCC recipient
     :subject -- subject heading for message
     :type -- :plain or :multipart, defaults to :plain
-    :subtype -- (multipart messages
+    :subtype -- (used by multipart messages only)
     :body -- body of email message, or array of parts if multipart type
 
 If you pass in a string as a map key, (send) assumes it is a valid

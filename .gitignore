@@ -8,3 +8,6 @@ docs/
 *.jar
 *.war
 src/nonomail/config.clj
+\#*\#
+\#*.*\#
+.\#*
