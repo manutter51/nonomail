@@ -11,3 +11,6 @@ src/nonomail/config.clj
 \#*\#
 \#*.*\#
 .\#*
+.classpath
+.project
+bin/
