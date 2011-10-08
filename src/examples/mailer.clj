@@ -1,11 +1,10 @@
 (ns examples.mailer
-  (:require [nonomail.smtp :as mail]))
+  (:require [nonomail.send :as mail]))
 
 (def mail-config
   {:user "mailerdude"
    :pass "send-it-all"
-   :host "localhost"
-   })
+   :host "localhost"})
 
 (def simple-message
   {:to ["joe@abc.com" "may@xyz.com" "pat@def.net"] ; Can be single string address or vector of addresses
@@ -28,13 +27,13 @@
 (def all-messages [simple-message multipart-message])
 
 (defn send-messages [config]
-  (mail/connect config)
-  (if (mail/error?)
-    (println "Could not send mail." (mail/error-msg))
-    (do
-      (mail/send! simple-message)
-      (mail/send! multipart-message)
-      (mail/send! all-messages))))
+  (let [conn (mail/connect config)]
+    (if (mail/error? conn)
+      (println "Could not send mail, " (apply str (mail/errors conn)))
+      (do
+        (mail/send! conn simple-message)
+        (mail/send! conn multipart-message)
+        (mail/send! conn all-messages)))))
 
 (defn -main [& args]
   (send-messages mail-config))

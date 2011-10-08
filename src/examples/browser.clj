@@ -5,6 +5,5 @@
 (def mail-config
   {:user "readerdude"
    :pass "read-it-all"
-   :host "localhost"
-   })
+   :host "localhost"})
 

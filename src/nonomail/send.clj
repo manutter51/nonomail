@@ -7,6 +7,18 @@
 	    InternetAddress AddressException])
   (:require [nonomail.util :as util]))
 
+;; Convenience functions
+(defn connect [config]
+  (get-session config))
+
+(defn error? [config]
+  (has-error? config))
+
+(defn errors [config]
+  (get-errors config))
+
+;; send-specific code
+
 (def plain-type #{:plain :html "text/plain" "text/html"})
 
 (defn new-message
