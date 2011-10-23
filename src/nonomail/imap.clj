@@ -1,14 +1,25 @@
 (ns nonomail.imap
+  (:refer-clojure :exclude [find])
   (:require [nonomail.util :as util])
-  (:import [com.sun.mail.imap IMAPStore IMAPFolder IMAPMessage]))
+  (:use nonomail.session)
+  (:import [com.sun.mail.imap IMAPStore IMAPFolder IMAPMessage]
+           [javax.mail URLName]))
 
-(defn- pre-hash
-  [coll]
-  (let [ct (count coll)
-        its (if (even? ct)
-              coll
-              (conj (vec coll) :exists))]
-  (concat its)))
+;; Convenience functions
+(defn connect [config]
+  (get-session config))
+
+(defn error? [config]
+  (has-error? config))
+
+(defn errors [config]
+  (get-errors config))
+
+;; main functions
+
+(defn parse-options [options]
+  (let [singles #{:ssl}]
+    (util/parse-args options singles)))
 
 (defn get-store
   "Given a session and a list of zero or more options, construct an IMAPStore object
@@ -31,12 +42,15 @@ Example:
 "
   [session & config]
   (let [j-sess (:session @session)
-        config (apply hash-map (pre-hash config))
+        config (apply hash-map (parse-options config))
         session-config (:config @session)
         errors []
         host (util/get-first :host config session-config "localhost")
         user (util/get-first :user config session-config nil)
         password (util/get-first :pass config session-config nil)
         is-ssl (util/get-first :ssl config session-config false)
-        ]
-    ))
+        url (URLName. "imap" host -1 "" "" "")]
+    (IMAPStore. j-sess url "" is-ssl)))
+
+(defn find [session & params]
+  )

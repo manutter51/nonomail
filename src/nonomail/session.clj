@@ -48,7 +48,7 @@ to use in creating a valid session."
                             (:user config) (:pass config))))]
     authenticator))
 
-(defn get-session
+(defn get-session ;;; @api
   "Given a config map, create a session object to be used in other
 JavaMail functions. The config map should contain values for
 the keys listed below.
@@ -100,13 +100,13 @@ properties with the new values. Returns the updated properties object."
     (swap! session assoc :props updated-props)
     updated-props))
 
-(defn reset-error!
+(defn reset-error! ;;; @api
   "Sets the session :error to error. This will typically be either a string
 message or a Java exception object."
   [session error]
   (swap! session assoc :error []))
 
-(defn add-error!
+(defn add-error! ;;; @api
   "Adds the given error to a list of errors associated with the session's
 :error parameter."
   [session error]
@@ -114,11 +114,12 @@ message or a Java exception object."
 	newer (conj current error)]
     (swap! session assoc :error newer)))
 
-(defn get-errors
+(defn get-errors ;;; @api
+  "Returns a list of errors associated with this session"
   [session]
   (:error @session))
 
-(defn has-error?
+(defn has-error? ;;; @api
   "Returns truthy if the :error param is not nil or an empty array."
   [session]
   (pos? (count (:error @session))))

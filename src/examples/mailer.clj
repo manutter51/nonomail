@@ -4,17 +4,17 @@
 (def mail-config
   {:user "mailerdude"
    :pass "send-it-all"
-   :host "localhost"})
+   :host "192.168.56.101"})
 
 (def simple-message
-  {:to ["joe@abc.com" "may@xyz.com" "pat@def.net"] ; Can be single string address or vector of addresses
-   :from "michael-mailer@example-mailer.com"
+  {:to ["joe@abc.com.local" "may@xyz.com.local" "pat@def.net.local"] ; Can be single string address or vector of addresses
+   :from "michael-mailer@example-mailer.com.local"
    :subject "A simple message"
    :body "Hi guys, how do you like my simple mail message?"})
 
 (def multipart-message
-  {:to ["sam@ghi.com" "joy@uvw.net"]
-   :from "michael-mailer@example-mailer.com"
+  {:to ["sam@ghi.com.local" "joy@uvw.net.local"]
+   :from "michael-mailer@example-mailer.com.local"
    :subject "A multipart message"
    :type :multipart
    :body [{:type :plain

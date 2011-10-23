@@ -1,6 +1,6 @@
 (ns nonomail.send
-  (:use nonomail.session)
-  (:use [clojure.string :only [join]])
+  (:use nonomail.session
+        [clojure.string :only [join]])
   (:import [javax.mail Authenticator Session Message Header
 	    Message$RecipientType]
 	   [javax.mail.internet MimeMessage MimeMultipart MimeBodyPart
