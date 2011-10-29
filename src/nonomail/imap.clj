@@ -3,7 +3,7 @@
   (:require [nonomail.util :as util])
   (:use nonomail.session)
   (:import [com.sun.mail.imap IMAPStore IMAPFolder IMAPMessage]
-           [javax.mail URLName]))
+           [javax.mail Session URLName]))
 
 ;; Convenience functions
 (defn connect [config]
@@ -50,7 +50,7 @@ Example:
         password (util/get-first :pass config session-config nil)
         is-ssl (util/get-first :ssl config session-config false)
         url (URLName. "imap" host -1 "" "" "")]
-    (IMAPStore. j-sess url "" is-ssl)))
+    (IMAPStore. ^Session j-sess, ^URLName url)))
 
 (defn find [session & params]
   )

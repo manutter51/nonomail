@@ -16,7 +16,7 @@ rather than creating a new one."
         port (if (string? port) port (str port))
         auth (:auth config)
         auth (if (string? auth) auth (str auth))
-	extra-headers (util/only-string-keys config)]
+        extra-headers (util/only-string-keys config)]
     (doto props
       (.put "mail.host" (:host config))
       (.put "mail.port" port)
@@ -29,7 +29,7 @@ rather than creating a new one."
       (doto props
         (.put "mail.starttls.enable" "true")
         (.put "mail.socketFactory.class"
-              "javax.net.ssl.SSLSocketFactory")
+          "javax.net.ssl.SSLSocketFactory")
         (.put "mail.socketFactory.fallback" "false")))
     ; Any user-supplied properties?
     (when extra-headers
@@ -42,9 +42,9 @@ rather than creating a new one."
 to use in creating a valid session."
   [config]
   (let [authenticator (proxy [javax.mail.Authenticator] [] 
-                          (getPasswordAuthentication 
-                           []
-                           (javax.mail.PasswordAuthentication. 
+                        (getPasswordAuthentication 
+                          []
+                          (javax.mail.PasswordAuthentication. 
                             (:user config) (:pass config))))]
     authenticator))
 
@@ -80,8 +80,8 @@ This function returns an atom containing a map with the following keys:
                      :props props
                      :authenticator authenticator
                      :session session
-		     :require-valid-recipients (get config :require-valid-recipients true)
-		     :error []}]
+                     :require-valid-recipients (get config :require-valid-recipients true)
+                     :error []}]
     (atom session-map)))
 
 (defn get-session-property

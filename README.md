@@ -6,7 +6,7 @@ This project is not yet ready for prime time. I wouldn't use it yet if I were yo
 
 ## Leiningen project.clj settings:
 
-    [nonomail "0.0.1-SNAPSHOT"]
+    [nonomail "0.0.2-SNAPSHOT"]
 
 ## Usage
 

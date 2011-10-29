@@ -6,9 +6,9 @@ Map keys can be strings or keywords."
   [p m]
   (doseq [k (keys m)]
     (let [ky (if (keyword? k)
-	       (name k)
-	       k)
-	  v (m k)]
+               (name k)
+               k)
+          v (m k)]
       (.put p ky v))))
 
 (defn prop-names
@@ -22,7 +22,7 @@ on the object, as strings."
 set on the object, with the key names converted to keywords."
   [p]
   (let [keys (prop-names p)
-	pull-key (fn [m k] (assoc m (keyword k) (.get p k)))]
+        pull-key (fn [m k] (assoc m (keyword k) (.get p k)))]
     (reduce pull-key {} keys)))
 
 (defn only-string-keys
@@ -38,8 +38,8 @@ are strings."
 of that object, as it would be passed to a Mail Delivery Agent."
   [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
-      (.writeTo msg out)
-      (str out)))
+    (.writeTo msg out)
+    (str out)))
 
 (defn as-file
   "If f is a java.io.File instance, return it, else convert it to an instance
@@ -87,9 +87,8 @@ use as singletons; if you leave off the #{:foo}, parse-args will assume that
         (let [v (first r)
               r2 (next r)]
           (cond
-           (nil? v) (recur (assoc m k :exists) nil nil)
-           (keyword? v) (if (singleton? k)
-                          (recur (assoc m k :exists) v r2)
-                          (recur (assoc m k v) (first r2) (rest r2)))
-           :else (recur (assoc m k v) (first r2) (rest r2))))))))
-        
+            (nil? v) (recur (assoc m k :exists) nil nil)
+            (keyword? v) (if (singleton? k)
+                           (recur (assoc m k :exists) v r2)
+                           (recur (assoc m k v) (first r2) (rest r2)))
+            :else (recur (assoc m k v) (first r2) (rest r2))))))))

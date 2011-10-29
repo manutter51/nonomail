@@ -19,26 +19,26 @@
   (let [msgs (get-new-mail conn)
         msg (first msgs)]
     (if-not msg
-      "No new messages"
-      (str (interpose "\n"
-                      "To: " (:to msg)
-                      "From: " (:from msg)
-                      "Subject: " (:subject msg)
-                      ""
-                      (:body msg))))))
+      (print "No new messages\n")
+      (print (str (interpose "\n"
+                       "To: " (:to msg)
+                       "From: " (:from msg)
+                       "Subject: " (:subject msg)
+                       ""
+                       (:body msg)))))))
 
 (defn print-multipart-msg
   [conn]
   (let [msgs (get-new-mail conn)
         msg (first msgs)]
     (if-not msg
-      "No new messages"
-      (str (interpose "\n"
-                      "To: " (:to msg)
-                      "From: " (:from msg)
-                      "Subject: " (:subject msg)
-                      ""
-                      (concat (filter #(#{:plain} (:type %)) (:body msg))))))))
+      (print "No new messages\n")
+      (print (str (interpose "\n"
+                       "To: " (:to msg)
+                       "From: " (:from msg)
+                       "Subject: " (:subject msg)
+                       ""
+                       (concat (filter #(#{:plain} (:type %)) (:body msg)))))))))
 
 (defn read-all [config]
   (let [conn (mail/connect config)]
@@ -46,4 +46,4 @@
       (println "Could not connect to mail server, " (apply str (mail/errors conn)))
       (do
         (print-first-msg conn)
-        (print-multipart-msg conn))))
+        (print-multipart-msg conn)))))
